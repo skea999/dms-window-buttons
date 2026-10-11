@@ -1,0 +1,12 @@
+{
+    "id": "dmsWindowButtons",
+    "name": "Window Buttons",
+    "description": "Windows-style window controls (maximize, fullscreen, close) for the focused window, on the DMS bar",
+    "version": "1.0.0",
+    "author": "skea999",
+    "type": "widget",
+    "capabilities": ["dankbar-widget", "window-controls"],
+    "component": "./WindowButtons.qml",
+    "icon": "close",
+    "requires_dms": ">=1.6.2"
+}
