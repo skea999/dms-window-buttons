@@ -1,20 +1,23 @@
 # dms-window-buttons
 
-Windows-style window controls for the [DankMaterialShell](https://github.com/AvengeMedia/DankMaterialShell) bar: **maximize · fullscreen · close** buttons for the focused window.
+Window controls for the [DankMaterialShell](https://github.com/AvengeMedia/DankMaterialShell) bar: **move down · move up · maximize · close** for the focused window.
 
 ## Why
 
-niri has no server-side titlebars (architectural: apps draw their own client-side decorations), and some apps — e.g. alacritty — never draw one at all, so a close/maximize button is not always reachable. This plugin puts those controls on the DMS bar instead.
-
-Minimize is intentionally absent: niri has no minimize concept (DMS hides its minimize UI on niri too — `Compositor.supportsMinimize` is false).
+niri has no server-side titlebars (architectural: apps draw their own client-side decorations), and some apps — e.g. alacritty — never draw one at all, so window controls are not always reachable. This plugin puts them on the DMS bar instead.
 
 The pill is **hidden when no window is focused** (`conditionVisible`).
 
 | Button | Action | niri action |
 |---|---|---|
-| Maximize | Maximize to edges (toggle) | `MaximizeWindowToEdges` |
-| Fullscreen | Fullscreen toggle | `FullscreenWindow` |
-| Close | Close the focused window | `toplevel.close()` |
+| ↓ | Move the window's column one workspace **down** | `move-column-to-workspace-down` |
+| ↑ | Move the window's column one workspace **up** | `move-column-to-workspace-up` |
+| ⛶ | **Maximize** the column (same as the `Mod+F` keybind) | `maximize-column` |
+| ✕ | Close the focused window | `toplevel.close()` |
+
+Actions run `niri msg action` with a self-resolved socket (`$XDG_RUNTIME_DIR/niri*.sock`) — DMS starts from the user dinit, not as a child of niri, so `NIRI_SOCKET` is not in its environment (v1.0.0 relied on it behind a guard and silently did nothing; only close worked).
+
+Minimize is intentionally absent: niri has no minimize concept (DMS hides its minimize UI on niri too — `Compositor.supportsMinimize` is false).
 
 ## Requirements
 

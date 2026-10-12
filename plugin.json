@@ -1,8 +1,8 @@
 {
     "id": "dmsWindowButtons",
     "name": "Window Buttons",
-    "description": "Windows-style window controls (maximize, fullscreen, close) for the focused window, on the DMS bar",
-    "version": "1.0.0",
+    "description": "Window controls for the focused window on the DMS bar: move column to workspace down/up, maximize (Mod+F), close",
+    "version": "1.0.1",
     "author": "skea999",
     "type": "widget",
     "capabilities": ["dankbar-widget", "window-controls"],

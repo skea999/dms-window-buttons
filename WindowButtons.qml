@@ -5,15 +5,19 @@ import qs.Services
 import qs.Widgets
 import qs.Modules.Plugins
 
-// Window Buttons — Windows-style controls for the focused window on the DMS
-// bar: maximize-to-edges, fullscreen, close.
-//
-// Why on the bar: niri has no server-side titlebars (architectural — CSD is
-// drawn by the apps themselves), and apps like alacritty never draw one.
-// Minimize is intentionally absent: niri has no minimize concept (DMS hides
-// it too — DankCommon.Compositor.supportsMinimize is false on niri).
+// Window Buttons — controls for the focused window on the DMS bar:
+//   [↓] move the window's column one workspace DOWN
+//   [↑] move the window's column one workspace UP
+//   [⛶] maximize the column (same action as the Mod+F keybind)
+//   [✕] close the focused window
 //
 // Hidden when no window is focused (conditionVisible).
+//
+// v1.0.0 note: maximize/fullscreen silently did nothing because they relied
+// on NiriService.send behind a `Quickshell.env("NIRI_SOCKET")` guard — DMS
+// runs from the user dinit (turnstile), NOT as a child of niri, so
+// NIRI_SOCKET is absent from its environment. Only close worked (native
+// toplevel.close()). v1.0.1 resolves the niri socket itself.
 PluginComponent {
     id: root
 
@@ -29,26 +33,23 @@ PluginComponent {
 
     conditionVisible: hasFocusedWindow
 
-    // niri IPC escape hatch (no CompositorService maximize/fullscreen API in
-    // DMS): send Actions through NiriService, same channel DMS itself uses.
-    function sendNiriAction(action) {
-        if (!Quickshell.env("NIRI_SOCKET"))
-            return;
-        NiriService.send({
-            "Action": action
-        });
+    // niri IPC via the CLI with a self-resolved socket: the shell's env does
+    // not carry NIRI_SOCKET (see header). Same discovery pattern the DMS
+    // session wrapper uses.
+    function niriAction(name) {
+        Quickshell.execDetached(["sh", "-c", "sock=$(ls \"$XDG_RUNTIME_DIR\"/niri*.sock 2>/dev/null | head -1) && NIRI_SOCKET=$sock exec niri msg action " + name]);
     }
 
-    function maximizeFocused() {
-        sendNiriAction({
-            "MaximizeWindowToEdges": {}
-        });
+    function moveWorkspaceDown() {
+        niriAction("move-column-to-workspace-down");
     }
 
-    function fullscreenFocused() {
-        sendNiriAction({
-            "FullscreenWindow": {}
-        });
+    function moveWorkspaceUp() {
+        niriAction("move-column-to-workspace-up");
+    }
+
+    function maximizeColumn() {
+        niriAction("maximize-column");
     }
 
     function closeFocused() {
@@ -92,13 +93,18 @@ PluginComponent {
             spacing: Theme.spacingXS
 
             WindowButton {
-                iconName: "crop_square"
-                action: root.maximizeFocused
+                iconName: "arrow_downward"
+                action: root.moveWorkspaceDown
+            }
+
+            WindowButton {
+                iconName: "arrow_upward"
+                action: root.moveWorkspaceUp
             }
 
             WindowButton {
                 iconName: "fullscreen"
-                action: root.fullscreenFocused
+                action: root.maximizeColumn
             }
 
             WindowButton {
@@ -114,13 +120,18 @@ PluginComponent {
             spacing: Theme.spacingXS
 
             WindowButton {
-                iconName: "crop_square"
-                action: root.maximizeFocused
+                iconName: "arrow_downward"
+                action: root.moveWorkspaceDown
+            }
+
+            WindowButton {
+                iconName: "arrow_upward"
+                action: root.moveWorkspaceUp
             }
 
             WindowButton {
                 iconName: "fullscreen"
-                action: root.fullscreenFocused
+                action: root.maximizeColumn
             }
 
             WindowButton {
